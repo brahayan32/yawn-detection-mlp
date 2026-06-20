@@ -1,0 +1,16 @@
+name: yawn-detection-mlp
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - pip
+  - jupyterlab
+  - numpy
+  - pandas
+  - matplotlib
+  - scikit-learn
+  - seaborn
+  - pip:
+      - tensorflow>=2.15
+      - opencv-python>=4.9
