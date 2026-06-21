@@ -4,13 +4,17 @@ Esta carpeta contiene una app sencilla en Streamlit para usar el modelo entrenad
 
 ## Que hace
 
-La app permite:
+La app permite usar tres modos:
 
-- Subir una imagen.
-- Capturar una imagen con la camara.
-- Analizar la imagen con el modelo MLP existente.
-- Mostrar si hay bostezo o no.
-- Mostrar la probabilidad estimada.
+- `Subir imagen`: cargar una imagen desde el computador.
+- `Capturar foto`: tomar una foto con `st.camera_input`.
+- `Camara en vivo`: usar video en vivo con `streamlit-webrtc`.
+
+En todos los modos se usa el modelo MLP existente para mostrar:
+
+- `Bostezo detectado`
+- `No se detecta bostezo`
+- probabilidad estimada
 
 La app no entrena modelos nuevos y no modifica datasets, modelos ni metricas.
 
@@ -22,14 +26,25 @@ Desde la raiz del proyecto:
 py -m streamlit run app_streamlit/streamlit_app.py
 ```
 
+Si faltan dependencias:
+
+```powershell
+py -m pip install -r requirements.txt
+```
+
 ## Como probar
 
 1. Ejecuta la app.
-2. Elige la pestana `Subir imagen` o `Camara`.
-3. Carga o captura una imagen facial.
-4. Revisa la vista previa.
-5. Presiona `Analizar imagen`.
-6. Lee el resultado y la probabilidad.
+2. Elige `Subir imagen`, `Capturar foto` o `Camara en vivo`.
+3. En imagen/foto, presiona `Analizar imagen`.
+4. En camara en vivo, presiona `START` y permite el acceso a la camara del navegador.
+5. Revisa el resultado y la probabilidad.
+
+## Camara en vivo
+
+La camara en vivo usa `streamlit-webrtc`. Esta opcion procesa frames del navegador y ejecuta inferencia cada cierto numero de frames para evitar que la app se vuelva lenta.
+
+En local suele funcionar mejor. El navegador puede pedir permisos de camara y, en despliegues remotos, puede requerir configuracion adicional de HTTPS/permisos.
 
 ## Archivos que usa internamente
 
@@ -37,21 +52,14 @@ py -m streamlit run app_streamlit/streamlit_app.py
 - `models/final_model`
 - `metrics/best_threshold.txt`
 
-## Resultado
+## Preprocesamiento
 
-Si la probabilidad es igual o mayor al umbral interno, la app muestra:
+La app usa el mismo enfoque del proyecto actual:
 
-```text
-Bostezo detectado
-```
-
-Si la probabilidad es menor, muestra:
-
-```text
-No se detecta bostezo
-```
-
-## Nota
-
-La opcion de camara usa `st.camera_input`, que permite capturar una foto desde el navegador sin agregar dependencias extra.
+- escala de grises,
+- recorte configurado en el proyecto,
+- suavizado Gaussiano configurado,
+- redimensionamiento a `80x80`,
+- normalizacion,
+- vector final de `6400` caracteristicas.
 
