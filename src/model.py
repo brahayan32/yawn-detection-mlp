@@ -5,15 +5,15 @@ import tensorflow as tf
 class PureTensorFlowMLP(tf.Module):
     """MLP built with TensorFlow variables, without Keras."""
 
-    def __init__(self, input_dim: int = 4096, seed: int = 42, name: str | None = None):
+    def __init__(self, input_dim: int = 6400, seed: int = 42, name: str | None = None):
         super().__init__(name=name)
         tf.random.set_seed(seed)
 
-        self.w1 = tf.Variable(tf.random.normal([input_dim, 512], stddev=0.05), name="w1")
-        self.b1 = tf.Variable(tf.zeros([512]), name="b1")
-        self.w2 = tf.Variable(tf.random.normal([512, 128], stddev=0.05), name="w2")
-        self.b2 = tf.Variable(tf.zeros([128]), name="b2")
-        self.w3 = tf.Variable(tf.random.normal([128, 1], stddev=0.05), name="w3")
+        self.w1 = tf.Variable(tf.random.normal([input_dim, 256], stddev=0.05), name="w1")
+        self.b1 = tf.Variable(tf.zeros([256]), name="b1")
+        self.w2 = tf.Variable(tf.random.normal([256, 64], stddev=0.05), name="w2")
+        self.b2 = tf.Variable(tf.zeros([64]), name="b2")
+        self.w3 = tf.Variable(tf.random.normal([64, 1], stddev=0.05), name="w3")
         self.b3 = tf.Variable(tf.zeros([1]), name="b3")
 
     @property
@@ -58,16 +58,25 @@ def binary_cross_entropy(y_true, y_pred):
     return tf.reduce_mean(loss)
 
 
+def l2_penalty(model):
+    weights = [variable for variable in model.trainable_variables if variable.shape.rank and variable.shape.rank > 1]
+    if not weights:
+        return tf.constant(0.0, dtype=tf.float32)
+    return tf.add_n([tf.reduce_sum(tf.square(weight)) for weight in weights])
+
+
 def accuracy(y_true, y_pred):
     y_true = tf.reshape(tf.cast(y_true, tf.float32), [-1, 1])
     y_label = tf.cast(y_pred >= 0.5, tf.float32)
     return tf.reduce_mean(tf.cast(tf.equal(y_true, y_label), tf.float32))
 
 
-def train_step(model, optimizer, x_batch, y_batch):
+def train_step(model, optimizer, x_batch, y_batch, l2_strength: float = 0.0):
     with tf.GradientTape() as tape:
         y_pred = model(x_batch)
         loss = binary_cross_entropy(y_batch, y_pred)
+        if l2_strength:
+            loss = loss + l2_strength * l2_penalty(model)
     gradients = tape.gradient(loss, model.trainable_variables)
     optimizer.apply_gradients(gradients, model.trainable_variables)
     return loss, accuracy(y_batch, y_pred)
@@ -95,6 +104,7 @@ def train_mlp(
     batch_size: int = 32,
     learning_rate: float = 0.001,
     patience: int = 6,
+    l2_strength: float = 0.0,
 ):
     optimizer = AdamOptimizer(model.trainable_variables, learning_rate=learning_rate)
     history = {"loss": [], "accuracy": [], "val_loss": [], "val_accuracy": []}
@@ -111,7 +121,7 @@ def train_mlp(
             batch_idx = indices[start : start + batch_size]
             x_batch = tf.convert_to_tensor(x_train[batch_idx], dtype=tf.float32)
             y_batch = tf.convert_to_tensor(y_train[batch_idx], dtype=tf.float32)
-            loss_value, acc_value = train_step(model, optimizer, x_batch, y_batch)
+            loss_value, acc_value = train_step(model, optimizer, x_batch, y_batch, l2_strength=l2_strength)
             train_losses.append(float(loss_value.numpy()))
             train_accuracies.append(float(acc_value.numpy()))
 

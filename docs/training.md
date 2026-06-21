@@ -5,9 +5,9 @@ El modelo principal es un MLP, o perceptron multicapa, usado para clasificacion 
 ## Arquitectura
 
 ```text
-Entrada: 4096 caracteristicas
-Capa oculta 1: 512 neuronas, ReLU
-Capa oculta 2: 128 neuronas, ReLU
+Entrada: 6400 caracteristicas
+Capa oculta 1: 256 neuronas, ReLU
+Capa oculta 2: 64 neuronas, ReLU
 Salida: 1 neurona, Sigmoid
 ```
 
@@ -20,6 +20,8 @@ El modelo se define con `tf.Variable` para pesos y sesgos. La propagacion hacia 
 - `tf.sigmoid` para la salida binaria.
 
 El entrenamiento se realiza con `tf.GradientTape`, que calcula los gradientes de la funcion de perdida respecto a los pesos. Luego se actualizan los parametros con una implementacion propia del optimizador Adam.
+
+Se aplica regularizacion L2 ligera sobre los pesos para reducir sobreajuste. El conjunto de entrenamiento se carga con aumentacion de datos en memoria; validacion y prueba se mantienen sin aumentacion para medir el rendimiento real.
 
 ## Funciones de activacion
 

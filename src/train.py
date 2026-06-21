@@ -1,7 +1,7 @@
 import numpy as np
 import tensorflow as tf
 
-from .config import BATCH_SIZE, DATASET_DIR, EPOCHS, METRICS_DIR, MODELS_DIR, RANDOM_STATE
+from .config import BATCH_SIZE, DATASET_DIR, EPOCHS, L2_REGULARIZATION, METRICS_DIR, MODELS_DIR, RANDOM_STATE
 from .evaluation import compute_metrics, save_confusion_matrix, save_history_plots, save_results_csv
 from .model import PureTensorFlowMLP, predict, save_model, train_mlp
 from .preprocessing import load_all_dataset
@@ -29,6 +29,7 @@ def main():
         y_val=y_val if len(y_val) else None,
         epochs=EPOCHS,
         batch_size=BATCH_SIZE,
+        l2_strength=L2_REGULARIZATION,
     )
 
     save_history_plots(history, METRICS_DIR)

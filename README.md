@@ -5,7 +5,7 @@ Sistema de vision artificial para clasificar imagenes en dos clases:
 - `1` = yawn
 - `0` = no_yawn
 
-El modelo principal es un MLP implementado con TensorFlow puro, sin Keras. Las imagenes se preprocesan en escala de grises, suavizado Gaussiano, redimensionamiento a `64x64`, normalizacion de pixeles de `0-255` a `0-1` y vectorizacion a `4096` caracteristicas.
+El modelo principal es un MLP implementado con TensorFlow puro, sin Keras. Las imagenes se preprocesan en escala de grises, recorte de boca, suavizado Gaussiano ligero, redimensionamiento a `80x80`, normalizacion de pixeles de `0-255` a `0-1` y vectorizacion a `6400` caracteristicas.
 
 ## Estructura
 
@@ -67,38 +67,13 @@ python -m src.train
 python -m src.cross_validation
 ```
 
-## Prueba de CPU y GPU
-
-Para comprobar si TensorFlow detecta CUDA/GPU y comparar una mini ejecucion tecnica:
-
-```bash
-python -m src.device_test --device both
-```
-
-Esta prueba usa datos sinteticos y no entrena el dataset real.
-
-En WSL2 con GPU NVIDIA, instala las dependencias con:
-
-```bash
-pip install -r requirements-gpu-wsl.txt
-```
-
-El paquete `tensorflow[and-cuda]` instala las librerias CUDA/cuDNN que TensorFlow necesita dentro del entorno Python.
-
 ## Probar una imagen nueva
 
 ```bash
 python -m src.predict_image ruta/a/tu_imagen.jpg
 ```
 
-La salida muestra la probabilidad de `yawn` y la clase final segun el umbral `0.5`.
-
-Para calibrar el umbral con el conjunto de validacion:
-
-```bash
-python -m src.tune_threshold
-python -m src.predict_image ruta/a/tu_imagen.jpg --threshold auto
-```
+La salida muestra la probabilidad de `yawn` y la clase final.
 
 ## Probar con camara
 

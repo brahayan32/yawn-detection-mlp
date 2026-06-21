@@ -5,7 +5,8 @@ DATASET_DIR = PROJECT_ROOT / "datasets"
 MODELS_DIR = PROJECT_ROOT / "models"
 METRICS_DIR = PROJECT_ROOT / "metrics"
 
-IMAGE_SIZE = (64, 64)
+IMAGE_SIZE = (80, 80)
+PREPROCESSING_STRATEGY = "lower_face"
 CLASS_NAMES = ["no_yawn", "yawn"]
 CLASS_TO_LABEL = {"no_yawn": 0, "yawn": 1}
 LABEL_TO_CLASS = {0: "no_yawn", 1: "yawn"}
@@ -13,3 +14,5 @@ LABEL_TO_CLASS = {0: "no_yawn", 1: "yawn"}
 RANDOM_STATE = 42
 BATCH_SIZE = 32
 EPOCHS = 30
+AUGMENT_TRAINING = True
+L2_REGULARIZATION = 0.0001

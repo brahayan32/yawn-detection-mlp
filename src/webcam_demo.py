@@ -9,6 +9,9 @@ from .config import MODELS_DIR
 from .preprocessing import preprocess_image
 
 
+DECISION_LIMIT = 0.5
+
+
 def predict_frame(model, frame):
     with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as tmp:
         temp_path = Path(tmp.name)
@@ -24,7 +27,6 @@ def main():
     parser = argparse.ArgumentParser(description="Demo de deteccion de bostezo con webcam.")
     parser.add_argument("--camera", type=int, default=0, help="Indice de la camara.")
     parser.add_argument("--model-dir", default=str(MODELS_DIR / "final_model"), help="Carpeta del modelo SavedModel.")
-    parser.add_argument("--threshold", type=float, default=0.5, help="Umbral para clasificar como yawn.")
     args = parser.parse_args()
 
     model = tf.saved_model.load(args.model_dir)
@@ -45,7 +47,7 @@ def main():
         if frame_count % 5 == 0:
             probability = predict_frame(model, frame)
 
-        label = "YAWN" if probability >= args.threshold else "NO YAWN"
+        label = "YAWN" if probability >= DECISION_LIMIT else "NO YAWN"
         color = (0, 0, 255) if label == "YAWN" else (0, 180, 0)
         cv2.putText(frame, f"{label} ({probability:.2f})", (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1.0, color, 2)
         cv2.imshow("Yawn Detection MLP", frame)
