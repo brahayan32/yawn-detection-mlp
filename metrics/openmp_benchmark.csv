@@ -1,0 +1,6 @@
+mode,threads,images,time_ms,speedup
+serial,1,616,5008.000,1.000
+openmp,1,616,4597.000,1.089
+openmp,2,616,2132.000,2.349
+openmp,4,616,1716.000,2.918
+openmp,8,616,1575.000,3.180

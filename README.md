@@ -17,6 +17,9 @@ yawn-detection-mlp/
 |-- models/
 |-- metrics/
 |-- docs/
+|-- parallel/
+|-- cuda/
+|-- tools/
 |-- requirements.txt
 |-- environment.yml
 `-- README.md
@@ -90,3 +93,79 @@ Presiona `q` para cerrar la ventana.
 - Graficas: `metrics/accuracy.png`, `metrics/loss.png`
 - Matriz de confusion: `metrics/confusion_matrix.png`
 - Resultados: `metrics/results.csv`
+
+## Analisis del dataset
+
+```powershell
+py tools/dataset_summary.py
+```
+
+Genera:
+
+```text
+metrics/dataset_summary.csv
+metrics/dataset_distribution.png
+```
+
+Documento:
+
+```text
+docs/DATASET_ANALYSIS.md
+```
+
+## OpenMP
+
+Preprocesamiento serial y paralelo en C puro con OpenMP:
+
+```powershell
+cd parallel/openmp
+mingw32-make
+.\benchmark_openmp.exe 160 120 5
+cd ..\..
+py parallel/scripts/plot_openmp_speedup.py
+```
+
+Evidencias:
+
+```text
+metrics/openmp_benchmark.csv
+metrics/openmp_speedup.png
+```
+
+## CUDA
+
+Forward pass del MLP con kernels CUDA propios, estilo CUDA C, y benchmark CPU/GPU:
+
+```powershell
+cd cuda
+mingw32-make
+.\benchmark_cuda.exe
+cd ..
+py cuda/plot_cuda_speedup.py
+```
+
+En Windows, `nvcc` puede requerir Visual Studio Build Tools y `cl.exe`. En este proyecto esa configuracion ya quedo resuelta y el benchmark CUDA se ejecuto correctamente.
+
+Evidencias CUDA generadas:
+
+```text
+metrics/cuda_benchmark.csv
+metrics/cuda_speedup.png
+```
+
+Resultado real registrado:
+
+```text
+batch 1  -> speedup 24.585x
+batch 8  -> speedup 358.551x
+batch 16 -> speedup 398.811x
+batch 32 -> speedup 349.470x
+```
+
+## Documentacion academica
+
+```text
+docs/ANALISIS_METRICAS.md
+docs/REPORTE_FINAL_RUBRICA.md
+docs/GUIA_EXPOSICION.md
+```
