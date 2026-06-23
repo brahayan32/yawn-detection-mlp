@@ -32,10 +32,34 @@ except ImportError:  # pragma: no cover - depende del entorno WSL.
 
 st.set_page_config(page_title="Deteccion de Bostezo", page_icon="camera", layout="wide")
 
-# WebRTC necesita STUN fuera de localhost para negociar la conexion entre navegador y servidor.
-RTC_CONFIGURATION = {
-    "iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}],
-}
+def build_rtc_configuration() -> dict:
+    """Combina STUN publico con TURN privado almacenado fuera del repositorio."""
+    configuration = {
+        "iceServers": [
+            {"urls": ["stun:stun.relay.metered.ca:80"]},
+        ],
+    }
+    try:
+        turn = st.secrets["turn"]
+        configuration["iceServers"].append(
+            {
+                "urls": [
+                    "turn:standard.relay.metered.ca:80",
+                    "turn:standard.relay.metered.ca:80?transport=tcp",
+                    "turn:standard.relay.metered.ca:443",
+                    "turns:standard.relay.metered.ca:443?transport=tcp",
+                ],
+                "username": turn["username"],
+                "credential": turn["credential"],
+            }
+        )
+    except (KeyError, FileNotFoundError):
+        # En WSL local puede no existir secrets.toml; STUN permite conservar la prueba local.
+        pass
+    return configuration
+
+
+RTC_CONFIGURATION = build_rtc_configuration()
 
 
 @st.cache_resource(show_spinner=False)
