@@ -32,6 +32,11 @@ except ImportError:  # pragma: no cover - depende del entorno WSL.
 
 st.set_page_config(page_title="Deteccion de Bostezo", page_icon="camera", layout="wide")
 
+# WebRTC necesita STUN fuera de localhost para negociar la conexion entre navegador y servidor.
+RTC_CONFIGURATION = {
+    "iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}],
+}
+
 
 @st.cache_resource(show_spinner=False)
 def get_cached_model():
@@ -277,6 +282,7 @@ def main() -> None:
                 live_context = webrtc_streamer(
                     key="yawn-live-camera",
                     video_processor_factory=lambda: LiveYawnProcessor(model),
+                    rtc_configuration=RTC_CONFIGURATION,
                     media_stream_constraints={"video": True, "audio": False},
                     async_processing=True,
                     desired_playing_state=True,
